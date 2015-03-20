@@ -1,0 +1,5 @@
+# generated files
+*.cache
+
+# vendor libraries
+/node_modules

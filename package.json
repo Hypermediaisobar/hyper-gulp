@@ -1,0 +1,27 @@
+{
+    "author": "Mateusz Charytoniuk <mateusz.charytoniuk@gmail.com>",
+    "dependencies": {
+        "gulp": "3.x",
+        "gulp-eslint": "0.x",
+        "gulp-mocha": "2.x"
+    },
+    "description": "Collection of Gulp extras and commonly used tasks.",
+    "devDependencies": {
+    },
+    "directories": {
+        "lib": "gore-gulp"
+    },
+    "engines": {
+        "node": ">=0.12"
+    },
+    "main": "gore-gulp",
+    "name": "gore-gulp",
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:goreutils/gore-gulp.git"
+    },
+    "scripts": {
+        "test": "gulp test"
+    },
+    "version": "0.0.0"
+}
