@@ -11,7 +11,7 @@ var mocha = require("gulp-mocha"),
 
 module.exports = function (baseDir) {
     var pckg = require(path.join(baseDir, "package.json")),
-        globPattern = path.join(baseDir, pckg.directories.lib, "**", "*.test.js");
+        globPattern = path.join(baseDir, pckg.directories.lib, "**", "*.test.{js,jsx}");
 
     return function () {
         return gulp.src(globPattern)
