@@ -11,7 +11,6 @@ var eslint = require("gulp-eslint"),
     gg = require(path.join(__dirname, pckg.name)),
     gulp = require("gulp");
 
-gulp.task("build", ["test"]);
-gulp.task("default", ["build"]);
+gulp.task("default", ["test"]);
 gulp.task("lint", gg.tasks.lint(__dirname));
 gulp.task("test", ["lint"], gg.tasks.test(__dirname));

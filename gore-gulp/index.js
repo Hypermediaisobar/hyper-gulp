@@ -7,11 +7,13 @@
 
 var path = require("path"),
     lint = require(path.join(__dirname, "/lint")),
-    test = require(path.join(__dirname, "/test"));
+    test = require(path.join(__dirname, "/test")),
+    webpack = require(path.join(__dirname, "/webpack"));
 
 module.exports = {
     "tasks": {
         "lint": lint,
-        "test": test
+        "test": test,
+        "webpack": webpack
     }
 };
