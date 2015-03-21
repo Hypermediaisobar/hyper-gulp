@@ -1,0 +1,6 @@
+{
+    "directories": {
+        "lib": "."
+    },
+    "name": "test-fixture-example"
+}

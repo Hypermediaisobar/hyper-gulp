@@ -51,7 +51,7 @@ function run(config) {
     });
 }
 
-function task(baseDir) {
+function stub(baseDir, outputPath) {
     var pckg = require(path.join(baseDir, "package.json"));
 
     return Promise.resolve({
@@ -91,7 +91,7 @@ function task(baseDir) {
         },
         "output": {
             "filename": pckg.name + ".[name].min.js",
-            "path": path.join(baseDir, "dist")
+            "path": outputPath
         },
         "pckg": pckg,
         "resolve": {
@@ -105,15 +105,21 @@ function task(baseDir) {
     });
 }
 
+function init(baseDir, variant) {
+    return {
+        "output": function (output) {
+            return function () {
+                return stub(baseDir, output).then(variant).then(run);
+            };
+        }
+    };
+}
+
 module.exports = {
     "full": function (baseDir) {
-        return function () {
-            return task(baseDir).then(full).then(run);
-        };
+        return init(baseDir, full);
     },
     "quick": function (baseDir) {
-        return function () {
-            return task(baseDir).then(quick).then(run);
-        };
+        return init(baseDir, quick);
     }
 };

@@ -9,6 +9,8 @@
     },
     "description": "Collection of Gulp extras and commonly used tasks.",
     "devDependencies": {
+        "chai": "2.x",
+        "tmp": "0.x"
     },
     "directories": {
         "lib": "gore-gulp"
