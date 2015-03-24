@@ -1,10 +1,12 @@
 {
     "author": "Mateusz Charytoniuk <mateusz.charytoniuk@gmail.com>",
     "dependencies": {
+        "glob": "5.x",
         "gulp": "3.x",
         "gulp-eslint": "0.x",
         "gulp-mocha": "2.x",
         "lodash": "3.x",
+        "q": "1.x",
         "webpack": "1.x"
     },
     "description": "Collection of Gulp extras and commonly used tasks.",

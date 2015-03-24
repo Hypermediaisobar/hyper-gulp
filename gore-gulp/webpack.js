@@ -6,7 +6,9 @@
 "use strict";
 
 var _ = require("lodash"),
+    glob = require("glob"),
     path = require("path"),
+    Q = require("q"),
     querystring = require("querystring"),
     webpack = require("webpack");
 
@@ -23,6 +25,17 @@ function full(config) {
             new webpack.optimize.UglifyJsPlugin()
         ]
     });
+}
+
+function normalizeEntry(entries) {
+    var entry,
+        ret = {};
+
+    for (entry of entries) {
+        ret[path.basename(entry, ".entry.js")] = entry;
+    }
+
+    return ret;
 }
 
 function quick(config) {
@@ -54,55 +67,58 @@ function run(config) {
 function stub(baseDir, outputPath) {
     var pckg = require(path.join(baseDir, "package.json"));
 
-    return Promise.resolve({
-        "bail": true,
-        "context": path.join(__dirname, pckg.directories.lib),
-        "devtool": "source-map",
-        "entry": {
-        },
-        "module": {
-            "loaders": [
-                {
-                    // bower components usually expect to run in browser
-                    // environment and sometimes assume that global 'this'
-                    // is always the Window object which is a mistake
-                    "test": /bower_components/,
-                    "loader": "imports?this=>window"
+    return Q.nfcall(glob, path.join(__dirname, pckg.directories.lib, "**", "*.entry.{js,jsx}"))
+        .then(normalizeEntry)
+        .then(function (entries) {
+            return {
+                "bail": true,
+                "context": path.join(__dirname, pckg.directories.lib),
+                "devtool": "source-map",
+                "entry": entries,
+                "module": {
+                    "loaders": [
+                        {
+                            // bower components usually expect to run in browser
+                            // environment and sometimes assume that global 'this'
+                            // is always the Window object which is a mistake
+                            "test": /bower_components/,
+                            "loader": "imports?this=>window"
+                        },
+                        {
+                            "test": /\.jsx$/,
+                            "exclude": /(bower_components|node_modules)/,
+                            "loader": "babel-loader?" + querystring.stringify({
+                                "loose": [
+                                    "es6.modules",
+                                    "es6.properties.computed",
+                                    "es6.templateLiterals"
+                                ],
+                                "optional": [
+                                    "runtime",
+                                    "utility.deadCodeElimination",
+                                    "utility.inlineExpressions",
+                                    "validation.undeclaredVariableCheck",
+                                    "validation.react"
+                                ]
+                            })
+                        }
+                    ]
                 },
-                {
-                    "test": /\.jsx$/,
-                    "exclude": /(bower_components|node_modules)/,
-                    "loader": "babel-loader?" + querystring.stringify({
-                        "loose": [
-                            "es6.modules",
-                            "es6.properties.computed",
-                            "es6.templateLiterals"
-                        ],
-                        "optional": [
-                            "runtime",
-                            "utility.deadCodeElimination",
-                            "utility.inlineExpressions",
-                            "validation.undeclaredVariableCheck",
-                            "validation.react"
-                        ]
-                    })
+                "output": {
+                    "filename": pckg.name + ".[name].min.js",
+                    "path": outputPath
+                },
+                "pckg": pckg,
+                "resolve": {
+                    "extensions": [
+                        "",
+                        ".coffee",
+                        ".js",
+                        ".jsx"
+                    ]
                 }
-            ]
-        },
-        "output": {
-            "filename": pckg.name + ".[name].min.js",
-            "path": outputPath
-        },
-        "pckg": pckg,
-        "resolve": {
-            "extensions": [
-                "",
-                ".coffee",
-                ".js",
-                ".jsx"
-            ]
-        }
-    });
+            };
+        });
 }
 
 function init(baseDir, variant) {
