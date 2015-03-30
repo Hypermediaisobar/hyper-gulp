@@ -9,13 +9,11 @@
 "use strict";
 
 var path = require("path"),
-    mocha = require("gulp-mocha"),
-    globals = require(path.join(__dirname, "/globals")),
-    gulp = require("gulp");
+    mocha = require("gulp-mocha");
 
-module.exports = function (baseDir) {
+module.exports = function (options, gulp, baseDir) {
     var pckg = require(path.join(baseDir, "package.json")),
-        globPattern = path.join(baseDir, pckg.directories.lib, "**", "*.test" + globals.ecmaScriptFileExtensionsGlobPattern);
+        globPattern = path.join(baseDir, pckg.directories.lib, "**", "*.test" + options.ecmaScriptFileExtensionsGlobPattern);
 
     return function () {
         return gulp.src(globPattern)

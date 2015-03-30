@@ -9,14 +9,12 @@
 "use strict";
 
 var path = require("path"),
-    eslint = require("gulp-eslint"),
-    globals = require(path.join(__dirname, "/globals")),
-    gulp = require("gulp");
+    eslint = require("gulp-eslint");
 
-module.exports = function (baseDir) {
+module.exports = function (options, gulp, baseDir) {
     var eslintrc = path.join(__dirname, "..", "eslint.json"),
         pckg = require(path.join(baseDir, "package.json")),
-        globPattern = path.join(baseDir, pckg.directories.lib, "**", "*." + globals.ecmaScriptFileExtensionsGlobPattern);
+        globPattern = path.join(baseDir, pckg.directories.lib, "**", "*." + options.ecmaScriptFileExtensionsGlobPattern);
 
     return function () {
         return gulp.src(globPattern)

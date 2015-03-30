@@ -11,7 +11,6 @@
 var path = require("path"),
     _ = require("lodash"),
     glob = require("glob"),
-    globals = require(path.join(__dirname, "/globals")),
     Q = require("q"),
     querystring = require("querystring"),
     webpack = require("webpack");
@@ -31,13 +30,13 @@ function full(config) {
     });
 }
 
-function normalizeEntry(entries) {
+function normalizeEntry(options, entries) {
     var entry,
         i,
         ret = {};
 
     for (i = 0; i < entries.length; i += 1) {
-        ret[normalizeEntryModuleName(entries[i], globals.ecmaScriptFileExtensions)] = entries[i];
+        ret[normalizeEntryModuleName(entries[i], options.ecmaScriptFileExtensions)] = entries[i];
     }
 
     return ret;
@@ -83,11 +82,13 @@ function run(config) {
     });
 }
 
-function stub(baseDir, outputPath) {
+function stub(options, baseDir, outputPath) {
     var pckg = require(path.join(baseDir, "package.json"));
 
-    return Q.nfcall(glob, path.join(__dirname, pckg.directories.lib, "**", "*.entry" + globals.ecmaScriptFileExtensionsGlobPattern))
-        .then(normalizeEntry)
+    return Q.nfcall(glob, path.join(__dirname, pckg.directories.lib, "**", "*.entry" + options.ecmaScriptFileExtensionsGlobPattern))
+        .then(function (entries) {
+            return normalizeEntry(options, entries);
+        })
         .then(function (entries) {
             return {
                 "bail": true,
@@ -129,27 +130,27 @@ function stub(baseDir, outputPath) {
                 },
                 "pckg": pckg,
                 "resolve": {
-                    "extensions": globals.ecmaScriptFileExtensions
+                    "extensions": options.ecmaScriptFileExtensions
                 }
             };
         });
 }
 
-function init(baseDir, variant) {
+function init(options, baseDir, variant) {
     return {
         "output": function (output) {
             return function () {
-                return stub(baseDir, output).then(variant).then(run);
+                return stub(options, baseDir, output).then(variant).then(run);
             };
         }
     };
 }
 
 module.exports = {
-    "full": function (baseDir) {
-        return init(baseDir, full);
+    "full": function (options, baseDir) {
+        return init(options, baseDir, full);
     },
-    "quick": function (baseDir) {
-        return init(baseDir, quick);
+    "quick": function (options, baseDir) {
+        return init(options, baseDir, quick);
     }
 };
