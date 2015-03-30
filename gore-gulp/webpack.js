@@ -1,13 +1,17 @@
 /**
- * @license Copyright (c) 2015, goreutils.com
- * For licensing, see LICENSE
+ * Copyright (c) 2015-present, goreutils
+ * All rights reserved.
+ *
+ * This source code is licensed under the MIT-style license found in the
+ * LICENSE file in the root directory of this source tree.
  */
 
 "use strict";
 
-var _ = require("lodash"),
+var path = require("path"),
+    _ = require("lodash"),
     glob = require("glob"),
-    path = require("path"),
+    globals = require(path.join(__dirname, "/globals")),
     Q = require("q"),
     querystring = require("querystring"),
     webpack = require("webpack");
@@ -29,13 +33,28 @@ function full(config) {
 
 function normalizeEntry(entries) {
     var entry,
+        i,
         ret = {};
 
-    for (entry of entries) {
-        ret[path.basename(entry, ".entry.js")] = entry;
+    for (i = 0; i < entries.length; i += 1) {
+        ret[normalizeEntryModuleName(entries[i], globals.ecmaScriptFileExtensions)] = entries[i];
     }
 
     return ret;
+}
+
+function normalizeEntryModuleName(entry, fileExtensions) {
+    var i,
+        fileExtension;
+
+    for (i = 0; i < fileExtensions.length; i += 1) {
+        fileExtension = ".entry" + fileExtensions[i];
+        if (_.endsWith(entry, fileExtension)) {
+            return path.basename(entry, fileExtension);
+        }
+    }
+
+    return entry;
 }
 
 function quick(config) {
@@ -67,7 +86,7 @@ function run(config) {
 function stub(baseDir, outputPath) {
     var pckg = require(path.join(baseDir, "package.json"));
 
-    return Q.nfcall(glob, path.join(__dirname, pckg.directories.lib, "**", "*.entry.{js,jsx}"))
+    return Q.nfcall(glob, path.join(__dirname, pckg.directories.lib, "**", "*.entry" + globals.ecmaScriptFileExtensionsGlobPattern))
         .then(normalizeEntry)
         .then(function (entries) {
             return {
@@ -110,12 +129,7 @@ function stub(baseDir, outputPath) {
                 },
                 "pckg": pckg,
                 "resolve": {
-                    "extensions": [
-                        "",
-                        ".coffee",
-                        ".js",
-                        ".jsx"
-                    ]
+                    "extensions": globals.ecmaScriptFileExtensions
                 }
             };
         });

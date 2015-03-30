@@ -1,6 +1,9 @@
 /**
- * @license Copyright (c) 2015, goreutils.com
- * For licensing, see LICENSE
+ * Copyright (c) 2015-present, goreutils
+ * All rights reserved.
+ *
+ * This source code is licensed under the MIT-style license found in the
+ * LICENSE file in the root directory of this source tree.
  */
 
 "use strict";
@@ -29,7 +32,7 @@ describe("webpack", function () {
         });
     });
 
-    it("generates output using .entry.js files", function (done) {
+    it("generates output using .entry.{js,jsx} files", function (done) {
         webpack.full(path.join(__dirname, "__fixtures__"))
             .output(tmpDir)()
             .then(function () {
@@ -37,6 +40,8 @@ describe("webpack", function () {
                 assert.ok(fs.statSync(path.join(tmpDir, "test-fixture-example.common.min.js.map")).isFile());
                 assert.ok(fs.statSync(path.join(tmpDir, "test-fixture-example.module.min.js")).isFile());
                 assert.ok(fs.statSync(path.join(tmpDir, "test-fixture-example.module.min.js.map")).isFile());
+                assert.ok(fs.statSync(path.join(tmpDir, "test-fixture-example.test.min.js")).isFile());
+                assert.ok(fs.statSync(path.join(tmpDir, "test-fixture-example.test.min.js.map")).isFile());
 
                 done();
             })
