@@ -15,16 +15,16 @@
         "tmp": "0.x"
     },
     "directories": {
-        "lib": "gore-gulp"
+        "lib": "hyper-gulp"
     },
     "engines": {
         "node": ">=0.12"
     },
-    "main": "gore-gulp",
-    "name": "gore-gulp",
+    "main": "hyper-gulp",
+    "name": "hyper-gulp",
     "repository": {
         "type": "git",
-        "url": "git@github.com:goreutils/gore-gulp.git"
+        "url": "git@github.com:Hypermediaisobar/hyper-gulp.git"
     },
     "scripts": {
         "test": "gulp test"
