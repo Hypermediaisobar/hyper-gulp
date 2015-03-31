@@ -8,13 +8,12 @@
 
 "use strict";
 
-var mocha = require("gulp-mocha"),
-    gulp = require("gulp"),
-    path = require("path");
+var path = require("path"),
+    mocha = require("gulp-mocha");
 
-module.exports = function (baseDir) {
+module.exports = function (options, gulp, baseDir) {
     var pckg = require(path.join(baseDir, "package.json")),
-        globPattern = path.join(baseDir, pckg.directories.lib, "**", "*.test.{js,jsx}");
+        globPattern = path.join(baseDir, pckg.directories.lib, "**", "*.test" + options.ecmaScriptFileExtensionsGlobPattern);
 
     return function () {
         return gulp.src(globPattern)

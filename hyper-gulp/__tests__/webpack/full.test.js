@@ -11,9 +11,10 @@
 /*eslint no-sync: 0 */
 /*global beforeEach: false, describe: false, it: false */
 
-var assert = require("chai").assert,
+var path = require("path"),
+    assert = require("chai").assert,
     fs = require("fs"),
-    path = require("path"),
+    globals = require(path.join(__dirname, "..", "..", "globals")),
     tmp = require("tmp"),
     webpack = require(path.join(__dirname, "..", "..", "webpack"));
 
@@ -32,14 +33,16 @@ describe("webpack", function () {
         });
     });
 
-    it("generates output using .entry.js files", function (done) {
-        webpack.full(path.join(__dirname, "__fixtures__"))
+    it("generates output using .entry." + globals.ecmaScriptFileExtensionsGlobPattern + " files", function (done) {
+        webpack.full(globals, path.join(__dirname, "__fixtures__"))
             .output(tmpDir)()
             .then(function () {
                 assert.ok(fs.statSync(path.join(tmpDir, "test-fixture-example.common.min.js")).isFile());
                 assert.ok(fs.statSync(path.join(tmpDir, "test-fixture-example.common.min.js.map")).isFile());
                 assert.ok(fs.statSync(path.join(tmpDir, "test-fixture-example.module.min.js")).isFile());
                 assert.ok(fs.statSync(path.join(tmpDir, "test-fixture-example.module.min.js.map")).isFile());
+                assert.ok(fs.statSync(path.join(tmpDir, "test-fixture-example.test.min.js")).isFile());
+                assert.ok(fs.statSync(path.join(tmpDir, "test-fixture-example.test.min.js.map")).isFile());
 
                 done();
             })

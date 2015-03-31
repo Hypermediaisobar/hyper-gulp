@@ -8,9 +8,9 @@
 
 "use strict";
 
-var _ = require("lodash"),
+var path = require("path"),
+    _ = require("lodash"),
     glob = require("glob"),
-    path = require("path"),
     Q = require("q"),
     querystring = require("querystring"),
     webpack = require("webpack");
@@ -30,15 +30,30 @@ function full(config) {
     });
 }
 
-function normalizeEntry(entries) {
+function normalizeEntry(options, entries) {
     var entry,
+        i,
         ret = {};
 
-    for (entry of entries) {
-        ret[path.basename(entry, ".entry.js")] = entry;
+    for (i = 0; i < entries.length; i += 1) {
+        ret[normalizeEntryModuleName(entries[i], options.ecmaScriptFileExtensions)] = entries[i];
     }
 
     return ret;
+}
+
+function normalizeEntryModuleName(entry, fileExtensions) {
+    var i,
+        fileExtension;
+
+    for (i = 0; i < fileExtensions.length; i += 1) {
+        fileExtension = ".entry" + fileExtensions[i];
+        if (_.endsWith(entry, fileExtension)) {
+            return path.basename(entry, fileExtension);
+        }
+    }
+
+    return entry;
 }
 
 function quick(config) {
@@ -67,11 +82,13 @@ function run(config) {
     });
 }
 
-function stub(baseDir, outputPath) {
+function stub(options, baseDir, outputPath) {
     var pckg = require(path.join(baseDir, "package.json"));
 
-    return Q.nfcall(glob, path.join(__dirname, pckg.directories.lib, "**", "*.entry.{js,jsx}"))
-        .then(normalizeEntry)
+    return Q.nfcall(glob, path.join(__dirname, pckg.directories.lib, "**", "*.entry" + options.ecmaScriptFileExtensionsGlobPattern))
+        .then(function (entries) {
+            return normalizeEntry(options, entries);
+        })
         .then(function (entries) {
             return {
                 "bail": true,
@@ -113,32 +130,27 @@ function stub(baseDir, outputPath) {
                 },
                 "pckg": pckg,
                 "resolve": {
-                    "extensions": [
-                        "",
-                        ".coffee",
-                        ".js",
-                        ".jsx"
-                    ]
+                    "extensions": options.ecmaScriptFileExtensions
                 }
             };
         });
 }
 
-function init(baseDir, variant) {
+function init(options, baseDir, variant) {
     return {
         "output": function (output) {
             return function () {
-                return stub(baseDir, output).then(variant).then(run);
+                return stub(options, baseDir, output).then(variant).then(run);
             };
         }
     };
 }
 
 module.exports = {
-    "full": function (baseDir) {
-        return init(baseDir, full);
+    "full": function (options, baseDir) {
+        return init(options, baseDir, full);
     },
-    "quick": function (baseDir) {
-        return init(baseDir, quick);
+    "quick": function (options, baseDir) {
+        return init(options, baseDir, quick);
     }
 };

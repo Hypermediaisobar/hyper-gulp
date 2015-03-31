@@ -9,14 +9,40 @@
 "use strict";
 
 var path = require("path"),
+    globals = require(path.join(__dirname, "/globals")),
     lint = require(path.join(__dirname, "/lint")),
     test = require(path.join(__dirname, "/test")),
     webpack = require(path.join(__dirname, "/webpack"));
 
-module.exports = {
-    "tasks": {
-        "lint": lint,
-        "test": test,
-        "webpack": webpack
-    }
-};
+function configure(options) {
+    return stub.bind(null, options);
+}
+
+function setup(options, gulp, tasks, baseDir) {
+    gulp.task("default", [
+        "test"
+    ]);
+    gulp.task("lint", tasks.lint(baseDir));
+    gulp.task("test", [
+        "lint"
+    ], tasks.test(baseDir));
+}
+
+function stub(options, gulp) {
+    var tasks = {
+        "lint": lint.bind(null, options, gulp),
+        "test": test.bind(null, options, gulp),
+        "webpack": {
+            "full": webpack.full.bind(null, options),
+            "quick": webpack.quick.bind(null, options)
+        }
+    };
+
+    return {
+        "setup": function (baseDir) {
+            return setup(options, gulp, tasks, baseDir);
+        }
+    };
+}
+
+module.exports = configure(globals);

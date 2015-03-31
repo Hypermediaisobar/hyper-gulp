@@ -8,12 +8,9 @@
 
 "use strict";
 
-var eslint = require("gulp-eslint"),
-    path = require("path"),
+var path = require("path"),
     pckg = require(path.join(__dirname, "package.json")),
     gg = require(path.join(__dirname, pckg.name)),
     gulp = require("gulp");
 
-gulp.task("default", ["test"]);
-gulp.task("lint", gg.tasks.lint(__dirname));
-gulp.task("test", ["lint"], gg.tasks.test(__dirname));
+gg(gulp).setup(__dirname);
